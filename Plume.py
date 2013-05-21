@@ -61,10 +61,6 @@ html = """
 
 def get_test(environ, start_response):
 
-   # fot GET Returns a dictionary containing lists as values.
-   #d = parse_qs(environ['QUERY_STRING'])
-
-   #for POST
    try:
       request_body_size = int(environ.get('CONTENT_LENGTH', 0))
       print request_body_size
@@ -73,12 +69,10 @@ def get_test(environ, start_response):
 
    request_body = environ['wsgi.input'].read(request_body_size)
    d = parse_qs(request_body)
-   
-   # In this idiom you must issue a list containing a default value.
-   age = d.get('age', [''])[0] # Returns the first age value.
-   hobbies = d.get('hobbies', []) # Returns a list of hobbies.
 
-   # Always escape user input to avoid script injection
+   age = d.get('age', [''])[0]
+   hobbies = d.get('hobbies', [])
+
    age = escape(age)
    hobbies = [escape(hobby) for hobby in hobbies]
 
@@ -87,7 +81,6 @@ def get_test(environ, start_response):
 
    status = '200 OK'
 
-   # Now content type is text/html
    response_headers = [('Content-Type', 'text/html'),
                   ('Content-Length', str(len(response_body)))]
    start_response(status, response_headers)
@@ -141,7 +134,6 @@ def index(environ, start_response):
 def hello(environ, start_response):
     """Like the example above, but it uses the name specified in the
 URL."""
-    # get the name from the url if it was specified there.
     args = environ['wsgi.url_args']
     print args
     if args:
@@ -184,13 +176,12 @@ def application(environ, start_response):
             return callback(environ, start_response)
     return not_found(environ, start_response)
 
-
-#validator_app = validator(aseanin_app)
 if __name__ == '__main__':
     try:
         httpd = make_server(HOST, PORT, application)
         print 'Listening %s on port %s' % (HOST, PORT)
         httpd.serve_forever()
         httpd.handle_request()
+        print dir(httpd)
     except KeyboardInterrupt:
         print 'CTRL-C caught, Stopped the Server.'
